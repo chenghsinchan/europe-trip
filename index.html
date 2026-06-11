@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 歐洲家庭跨國之旅 | Europe Family Trip</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* OpenAI 極簡風格 UI 變數 */
+        :root {
+            --bg-color: #ffffff;
+            --surface-color: #f7f7f8;
+            --text-primary: #101010;
+            --text-secondary: #4b4b4b;
+            --border-color: #e5e5e5;
+            --accent-color: #000000;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 840px;
+            margin: 60px auto;
+            padding: 0 24px;
+        }
+
+        /* 標題與文字樣式 */
+        header {
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-top: 3.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p, li {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* 極簡表格樣式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 2px solid var(--accent-color);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 16px 8px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+
+        /* 地圖區塊設定 */
+        #map {
+            width: 100%;
+            height: 480px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            z-index: 1;
+        }
+
+        /* 每日行程區塊 */
+        .day-block {
+            margin-bottom: 2.5rem;
+        }
+        
+        .day-header {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .date-badge {
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        .day-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .location-tags {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        /* 附錄灰色區塊 */
+        .appendix-box {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 2rem;
+        }
+
+        .appendix-box h3 {
+            margin-top: 0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* 手機板網頁自適應優化 */
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .day-header { flex-direction: column; gap: 6px; }
+            table, thead, tbody, th, td, tr { display: block; }
+            th { display: none; }
+            tr { border-bottom: 2px solid var(--accent-color); margin-bottom: 1rem; padding-bottom: 1rem; }
+            td { border-bottom: none; padding: 4px 0; }
+            td::before { content: attr(data-label) ": "; font-weight: 600; color: var(--text-primary); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>2026 歐洲家庭跨國之旅</h1>
+        <div class="subtitle">立陶宛 ➔ 義大利湖區 ➔ 挪威峽灣與建築朝聖 | 8/15 - 8/23</div>
+    </header>
+
+    <section>
+        <h2>行程總表 (Itinerary Overview)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>日期 (Date)</th>
+                    <th>國家 / 城市 (Location)</th>
+                    <th>住宿 (Accommodation)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="日期">8/15 (六)</td>
+                    <td data-label="地點">立陶宛 Lithuania (Vilnius)</td>
+                    <td data-label="住宿">AC Hotel Vilnius (雙人房x2)</td>
+                </tr>
+                <tr>
+                    <td data-label="日期">8/16 - 8/18 (日~二)</td>
+                    <td data-label="地點">義大利 Italy (Lake Como)</td>
+                    <td data-label="住宿">Airbnb in Gittana (附車位農莊)</td>
+                </tr>
+                <tr>
+                    <td data-label="日期">8/19 (三)</td>
+                    <td data-label="地點">挪威 Norway (Eidfjord)</td>
+                    <td data-label="住宿">Fossli Hotel (瀑布正上方三人房)</td>
+                </tr>
+                <tr>
+                    <td data-label="日期">8/20 (四)</td>
+                    <td data-label="地點">挪威 Norway (Lærdal)</td>
+                    <td data-label="住宿">Lærdal 兩房農舍木屋</td>
+                </tr>
+                <tr>
+                    <td data-label="日期">8/21 - 8/22 (五~六)</td>
+                    <td data-label="地點">挪威 Norway (Oslo)</td>
+                    <td data-label="住宿">Clarion Hotel The Hub (含早餐三人房)</td>
+                </tr>
+                <tr>
+                    <td data-label="日期">8/23 (日)</td>
+                    <td data-label="地點">英國 UK (London)</td>
+                    <td data-label="住宿">倫敦家中休息</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section>
+        <h2>旅行地圖 (Travel Map)</h2>
+        <div id="map"></div>
+    </section>
+
+    <section>
+        <h2>每日詳細行程 (Daily Itinerary)</h2>
+        
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/15 (六)</span>
+                <h3 class="day-title">初抵波羅的海：立陶宛古城漫步</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> 維爾紐斯舊城區 (Vilnius Old Town)</div>
+            <p>早上 08:45 從倫敦搭機，四人同行飛往立陶宛維爾紐斯。下午在被列為世界文化遺產的舊城區散步，欣賞巴洛克建築與紅磚巷弄，享受東歐的寧靜步調。晚上入住市中心現代化的 AC Hotel 雙人房。</p>
+        </div>
+
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/16 (日)</span>
+                <h3 class="day-title">迎向南歐陽光：直奔義大利科莫湖</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> 米蘭貝加莫 (Bergamo) ➔ 科莫湖 (Lake Como)</div>
+            <p>Saulė 返回倫敦。我們三人於傍晚搭機飛抵義大利米蘭貝加莫 (BGY) 機場。領取預訂好的 Fiat 500X 自排車，直接開往科莫湖畔，避開 ZTL (限行區)，入住位於 Gittana 的 Airbnb，享受義大利鄉村夜晚。</p>
+        </div>
+
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/17 - 8/18 (一~二)</span>
+                <h3 class="day-title">科莫湖悠閒自駕：古典別墅與湖光山色</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> Varenna, Menaggio, 湖畔古典別墅群 (Classic Villas)</div>
+            <p>全天享受科莫湖的南歐風情。開著靈活的 Fiat 500X 沿湖兜風，搭乘汽車渡輪穿梭於中湖區最美的 Varenna 與 Menaggio 小鎮。帶爸媽參觀歷史悠久的湖畔別墅與幾何修剪的義式花園，品嚐道地義式料理與冰淇淋。</p>
+        </div>
+
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/19 (三)</span>
+                <h3 class="day-title">飛越峽灣：電動車自駕與巨浪飛瀑</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> 挪威 E16 景觀公路 ➔ Vøringfossen (武靈瀑布)</div>
+            <p>中午在義大利機場還車，搭機飛往挪威卑爾根 (BGO)。下午 5 點順利領取寬敞的 Tesla Model Y。伴隨北歐長日照的黃金夕陽，直接沿著峽灣公路直奔 Eidfjord，入住位於 Vøringfossen 瀑布正上方的 Fossli Hotel。</p>
+        </div>
+
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/20 (四)</span>
+                <h3 class="day-title">峽灣與觀景台全制霸：水岸與懸挑構造</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> Flåm 純電峽灣遊船 ➔ Stegastein 觀景台 ➔ Lærdalstunnelen</div>
+            <p>早上在飯店旁欣賞大瀑布。中午開車至 Flåm，搭乘「純電靜音峽灣遊船」舒適賞景，對長輩零負擔。傍晚開車登上 Stegastein 觀景台，欣賞懸挑於峽灣之上的極簡木造建築設計。最後穿越世界上最長的萊達爾隧道，入住 Lærdal 的平地農舍木屋。</p>
+        </div>
+
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/21 (五)</span>
+                <h3 class="day-title">建築朝盛之路：木造奇蹟與玻璃帷幕</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> Borgund Stave Church ➔ Hamar (Domkirkeodden) ➔ Oslo</div>
+            <p>早上出發參觀建於 1180 年的 Borgund 木板教堂。接著驅車前往 Hamar，朝聖普立茲克建築獎得主 Sverre Fehn 設計的大教堂玻璃帷幕遺跡 (Domkirkeodden)，感受光線與遺址的完美融合。傍晚開車抵達奧斯陸 (Oslo) 市中心還車並入住飯店。</p>
+        </div>
+
+        <div class="day-block">
+            <div class="day-header">
+                <span class="date-badge">8/22 - 8/23 (六~日)</span>
+                <h3 class="day-title">奧斯陸當代建築巡禮與賦歸</h3>
+            </div>
+            <div class="location-tags"><strong>📍 景點:</strong> Oslo Opera House (奧斯陸歌劇院), Munch Museum (孟克美術館)</div>
+            <p>無車一身輕的週末。帶著爸媽在奧斯陸市區輕鬆散步，走上彷彿從水中升起的奧斯陸歌劇院白色大理石斜坡，並參觀全新落成的孟克美術館。週日吃完飯店豐盛的北歐自助早餐後，搭機返回倫敦休息，完美結束跨國旅程。</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>附錄：交通與住宿明細 (Appendix)</h2>
+        
+        <div class="appendix-box">
+            <h3>✈️ 航班資訊 (Flights)</h3>
+            <ul>
+                <li><strong>8/15:</strong> 倫敦(LTN) ➔ 維爾紐斯(VNO) | Ryanair FR3466 (08:45 - 13:25)</li>
+                <li><strong>8/16:</strong> 維爾紐斯(VNO) ➔ 米蘭貝加莫(BGY) | Ryanair FR2871 (16:35 - 18:10)</li>
+                <li><strong>8/19:</strong> 米蘭貝加莫(BGY) ➔ 卑爾根(BGO) | Norwegian DY1849 (13:45 - 16:15)</li>
+                <li><strong>8/23:</strong> 奧斯陸(OSL) ➔ 倫敦(LHR) | (17:30 - 18:50)</li>
+            </ul>
+        </div>
+
+        <div class="appendix-box">
+            <h3>🚘 租車要點 (Car Rentals)</h3>
+            <ul>
+                <li><strong>義大利 (8/16 - 8/19):</strong> TargetRent - Fiat 500X (自排 Automatic)。車身靈活，非常適合湖區山路會車與小鎮導航。</li>
+                <li><strong>挪威 (8/19 - 8/22):</strong> Hertz - Tesla Model Y 4x4。內建 AutoPass (免付現過路費與渡輪費)，後車廂空間極大，全景天窗適合長輩在後座欣賞峽灣高山。</li>
+            </ul>
+        </div>
+
+        <div class="appendix-box">
+            <h3>🏡 住宿確認名單 (Accommodations)</h3>
+            <ul>
+                <li><strong>立陶宛 (Vilnius):</strong> AC Hotel Vilnius (兩間雙人房)</li>
+                <li><strong>義大利 (Lake Como):</strong> Airbnb in Gittana (Vicolo Coperto 1)。附專屬車位，負責搬運行李即可。</li>
+                <li><strong>挪威瀑布區 (Eidfjord):</strong> Fossli Hotel (Booking nr: 36730)。三人房，直面 Vøringfossen 瀑布。</li>
+                <li><strong>挪威峽灣區 (Lærdal):</strong> Airbnb 農舍木屋 (House nr 27, Horgevegen)。兩房平面，無樓梯，長輩進出方便。</li>
+                <li><strong>挪威首都 (Oslo):</strong> Clarion Hotel The Hub。三人房 (1單床+1雙人床)，含豐盛北歐自助早餐。</li>
+            </ul>
+        </div>
+    </section>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // 初始化地圖，設定預設中心點與縮放比例
+    var map = L.map('map').setView([54.0, 14.0], 4);
+
+    // 套用高質感 OpenAI 風格的淡灰色極簡地圖磚
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(map);
+
+    // 定義所有重要的景點標記與座標
+    var locations = [
+        { name: "1. 立陶宛維爾紐斯 (AC Hotel)", lat: 54.6872, lng: 25.2797 },
+        { name: "2. 米蘭貝加莫機場 (BGY)", lat: 45.6698, lng: 9.7001 },
+        { name: "3. 義大利科莫湖 (Gittana Airbnb)", lat: 46.0350, lng: 9.2942 },
+        { name: "4. 挪威卑爾根機場 (BGO)", lat: 60.2934, lng: 5.2181 },
+        { name: "5. 武靈瀑布 (Fossli Hotel)", lat: 60.4265, lng: 7.2514 },
+        { name: "6. 弗洛姆峽灣遊船 (Flåm)", lat: 60.8608, lng: 7.1118 },
+        { name: "7. Stegastein 懸挑觀景台", lat: 60.9086, lng: 7.2121 },
+        { name: "8. 萊達爾農舍木屋 & Borgund 木板教堂", lat: 61.0475, lng: 7.8123 },
+        { name: "9. 哈馬爾大教堂玻璃遺址 (Hamar)", lat: 60.7925, lng: 11.0396 },
+        { name: "10. 奧斯陸 (Clarion The Hub / 歌劇院)", lat: 59.9113, lng: 10.7516 },
+        { name: "倫敦家中 (London)", lat: 51.5074, lng: -0.1278 }
+    ];
+
+    // 將所有標記點放上地圖，並設定點擊彈出視窗
+    locations.forEach(function(loc) {
+        L.marker([loc.lat, loc.lng]).addTo(map)
+            .bindPopup('<b>' + loc.name + '</b>');
+    });
+</script>
+
+</body>
+</html>index.html
